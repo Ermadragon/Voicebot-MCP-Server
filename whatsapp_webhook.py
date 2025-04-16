@@ -6,7 +6,7 @@ from flask import Flask, request
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
-from server import speech_to_text, text_to_speech  
+from server import conversation, speech_to_text, text_to_speech  
 import config
 
 app = Flask(__name__)
@@ -14,6 +14,8 @@ app = Flask(__name__)
 TO_NUMBER = os.getenv("WHATSAPP_VERIFY_NUMBER")  # optional, for testing
 
 client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+
+conversation_history = {}
 
 @app.route("/whatsapp", methods=["POST"])
 def whatsapp_webhook():
@@ -36,10 +38,19 @@ def whatsapp_webhook():
             return respond(f"Speech-to-text failed: {stt_result['message']}")
 
         transcribed = stt_result["text"]
-        print(f"[USER SAID]: {transcribed}")
+
+        # Track conversation history
+        history = conversation_history.get(from_number, "")
+        conversation_history[from_number] = history + f"\nUser: {transcribed}\n"
+
+        # Call Claude via MCP
+        reply = conversation(history=conversation_history[from_number], user_input=transcribed)
+
+        # Add Claude's reply to the user's history
+        conversation_history[from_number] += f"Claude: {reply}\n"
 
         # Step 3: Generate a response (dummy here — you can use Claude/MCP Prompt)
-        response_text = f"You said: {transcribed}"
+        response_text = reply
 
         # Step 4: Convert response to speech
         tts_result = text_to_speech(response_text, config.ELEVENLABS_VOICE_ID)

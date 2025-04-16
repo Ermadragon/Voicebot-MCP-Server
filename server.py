@@ -113,6 +113,21 @@ def list_elevenlabs_voices() -> Dict[str, Any]:
             "message": str(e)
         }
 
+@mcp.prompt()
+def conversation(context: Context, history: str, user_input: str) -> str:
+    """
+    Continues a natural conversation based on chat history and user input.
+    """
+    return f"""
+    Conversation so far:
+    {history}
+
+    User just said:
+    {user_input}
+
+    Your reply:
+    """
+
 if __name__ == "__main__":
     mcp.run()
 
