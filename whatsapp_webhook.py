@@ -11,7 +11,8 @@ import config
 
 app = Flask(__name__)
 
-TO_NUMBER = os.getenv("WHATSAPP_VERIFY_NUMBER")  # optional, for testing
+# Replace with personal whatsapp number to test
+TO_NUMBER = os.getenv("WHATSAPP_VERIFY_NUMBER")  
 
 client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
 
@@ -32,27 +33,21 @@ def whatsapp_webhook():
         audio_data = audio_response.content
         audio_b64 = base64.b64encode(audio_data).decode("utf-8")
 
-        # Step 2: Transcribe using your MCP tool
         stt_result = speech_to_text(audio_b64)
         if stt_result["status"] != "success":
             return respond(f"Speech-to-text failed: {stt_result['message']}")
 
         transcribed = stt_result["text"]
 
-        # Track conversation history
         history = conversation_history.get(from_number, "")
         conversation_history[from_number] = history + f"\nUser: {transcribed}\n"
 
-        # Call Claude via MCP
         reply = conversation(history=conversation_history[from_number], user_input=transcribed)
 
-        # Add Claude's reply to the user's history
         conversation_history[from_number] += f"Claude: {reply}\n"
 
-        # Step 3: Generate a response (dummy here — you can use Claude/MCP Prompt)
         response_text = reply
 
-        # Step 4: Convert response to speech
         tts_result = text_to_speech(response_text, config.ELEVENLABS_VOICE_ID)
         if tts_result["status"] != "success":
             return respond(f"Text-To-Speech failed: {tts_result['message']}")
@@ -60,7 +55,6 @@ def whatsapp_webhook():
         audio_b64 = tts_result["audio_base64"]
         audio_bin = base64.b64decode(audio_b64)
 
-        # Step 5: Send back voice message
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
             tmp.write(audio_bin)
             tmp_path = tmp.name
@@ -77,10 +71,6 @@ def whatsapp_webhook():
         return respond("Please send a voice message.")
 
 def upload_temp_file_to_twilio(path):
-    """Upload the audio to Twilio's temporary media hosting via Amazon S3 or your CDN.
-       For demo, we use file.io (auto-deletes after 1 download or 1 day).
-       For production: use your own storage.
-    """
     with open(path, "rb") as f:
         r = requests.post("https://file.io", files={"file": f})
         if r.status_code == 200:
