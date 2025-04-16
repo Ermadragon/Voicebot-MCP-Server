@@ -36,4 +36,5 @@ The different libraries and dependencies required for the project are as given b
    ngrok http 5003
 ```
 
-**Note: In ```whatsapp_webhook.py```, personal whatsapp numbers can be provided in ```"WHATSAPP_VERIFY_NUMBER"``` for interacting with the Claude-based MCP Server.**
+**Note: In ```whatsapp_webhook.py```, personal whatsapp numbers can be provided in ```"WHATSAPP_VERIFY_NUMBER"``` for interacting with the Claude-based MCP Server.
+  The required API tokens and IDs were maintained in a .env file.**
