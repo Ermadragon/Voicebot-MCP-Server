@@ -31,7 +31,7 @@ class ElevenLabsClient:
         return [v for v in voices.get('voices', []) if not v.get('category') == 'cloned']
         
     def text_to_speech(self, text, voice_id, model_id="eleven_multilingual_v2"):
-        """Convert text to speech using a specific voice"""
+        """Convert text to speech"""
         url = f"{self.BASE_URL}/text-to-speech/{voice_id}"
         
         payload = {
@@ -50,7 +50,7 @@ class ElevenLabsClient:
         )
         
         if response.status_code == 200:
-            return response.content  # Return audio binary content
+            return response.content  
         else:
             raise Exception(f"Text-to-speech failed: {response.text}")
     
