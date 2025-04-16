@@ -12,14 +12,6 @@ mcp = FastMCP("Personal VoiceBot")
 eleven_client = ElevenLabsClient()
 
 @mcp.tool()
-def hello(name: str) -> str:
-    return f"Hello, {name}!"
-
-@mcp.resource("ping://check")
-def ping_check() -> str:
-    return "Pong from MCP!"
-
-@mcp.tool()
 def text_to_speech(text: str, voice_id: str) -> Dict[str, Any]:
     """
     Convert text to speech using ElevenLabs API
@@ -36,13 +28,11 @@ def text_to_speech(text: str, voice_id: str) -> Dict[str, Any]:
     if not voice_id:
         return {
             "status": "error",
-            "message": "No voice ID configured."          # See to this
+            "message": "No voice ID configured."          
         }
-    
     try:
         audio_data = eleven_client.text_to_speech(text, voice_id)
         
-        # Convert binary audio to base64 for easier handling
         audio_base64 = base64.b64encode(audio_data).decode('utf-8')
         
         return {
@@ -68,19 +58,15 @@ def speech_to_text(audio_base64: str) -> Dict[str, Any]:
         Dictionary containing status and transcribed text
     """
     try:
-        # Decode the base64 audio
         audio_data = base64.b64decode(audio_base64)
         
-        # Create a temporary file to store the audio
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
             temp_file.write(audio_data)
-            temp_file_path = temp_file.name        # doubt in path name
+            temp_file_path = temp_file.name        
         
-        # Process with ElevenLabs
         with open(temp_file_path, 'rb') as f:
             transcription = eleven_client.speech_to_text(f.read())
         
-        # Clean up the temporary file
         os.unlink(temp_file_path)
         
         return {
