@@ -29,36 +29,7 @@ class ElevenLabsClient:
         """Get list of premade voices available on ElevenLabs"""
         voices = self.list_voices()
         return [v for v in voices.get('voices', []) if not v.get('category') == 'cloned']
-    
-    def clone_voice(self, name, description, audio_files):
-        """Clone a voice from audio samples"""
-        url = f"{self.BASE_URL}/voices/add"
         
-        # Prepare form data with audio files
-        files = [
-            ("files", (os.path.basename(file_path), open(file_path, "rb"), "audio/mpeg")) 
-            for file_path in audio_files
-        ]
-        
-        data = {
-            'name': name,
-            'description': description
-        }
-        
-        response = requests.post(
-            url, 
-            headers={"xi-api-key": self.api_key},  # Different headers for multipart form
-            data=data,
-            files=files
-        )
-        
-        if response.status_code == 200:
-            result = response.json()
-            voice_id = result.get('voice_id')
-            return voice_id
-        else:
-            raise Exception(f"Voice cloning failed: {response.text}")
-    
     def text_to_speech(self, text, voice_id, model_id="eleven_multilingual_v2"):
         """Convert text to speech using a specific voice"""
         url = f"{self.BASE_URL}/text-to-speech/{voice_id}"

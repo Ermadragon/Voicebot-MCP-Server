@@ -20,23 +20,23 @@ def ping_check() -> str:
     return "Pong from MCP!"
 
 @mcp.tool()
-def text_to_speech(text: str, voice_id: Optional[str] = None) -> Dict[str, Any]:
+def text_to_speech(text: str, voice_id: str) -> Dict[str, Any]:
     """
     Convert text to speech using ElevenLabs API
     
     Args:
         text: The text to convert to speech
-        voice_id: Optional voice ID to use (defaults to configured voice)
+        voice_id: Voice ID to use (defaults to configured voice)
         
     Returns:
         Dictionary containing status, audio data as base64, and format
     """
-    voice_id = voice_id or ELEVENLABS_VOICE_ID
+    voice_id = ELEVENLABS_VOICE_ID
     
     if not voice_id:
         return {
             "status": "error",
-            "message": "No voice ID configured. Run setup_voice.py first."          # See to this
+            "message": "No voice ID configured."          # See to this
         }
     
     try:
